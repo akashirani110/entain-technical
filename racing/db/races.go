@@ -19,13 +19,31 @@ type RacesRepo interface {
 	Init() error
 
 	// List will return a list of races.
-	List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error)
+	List(filter *racing.ListRacesRequestFilter, sortBy *racing.ListRacesSortBy, order *racing.ListRacesOrder) ([]*racing.Race, error)
 }
 
 type racesRepo struct {
 	db   *sql.DB
 	init sync.Once
 }
+
+type SortBy int64
+type Order int64
+
+// enum for sort by column
+const (
+	Id SortBy = iota + 1
+	MeetingId
+	Name
+	Number
+	AdvertisedStartTime
+)
+
+// enum for order
+const (
+	Ascending Order = iota + 1
+	Descending
+)
 
 // NewRacesRepo creates a new races repository.
 func NewRacesRepo(db *sql.DB) RacesRepo {
@@ -44,7 +62,7 @@ func (r *racesRepo) Init() error {
 	return err
 }
 
-func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error) {
+func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, sortBy *racing.ListRacesSortBy, order *racing.ListRacesOrder) ([]*racing.Race, error) {
 	var (
 		err   error
 		query string
@@ -54,6 +72,8 @@ func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race,
 	query = getRaceQueries()[racesList]
 
 	query, args = r.applyFilter(query, filter)
+
+	query = r.applySortByAndOrder(query, sortBy, order)
 
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
@@ -91,6 +111,41 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	}
 
 	return query, args
+}
+
+// returns a string value for the enum value passed
+func (sb SortBy) sortByString() string {
+	return [...]string{"id", "meeting_id", "name", "number", "advertised_start_time"}[sb-1]
+}
+
+// apply order by and order to the query if available
+// by default applies order by advertised_start_time in ascending order
+func (r *racesRepo) applySortByAndOrder(query string, sortBy *racing.ListRacesSortBy, order *racing.ListRacesOrder) string {
+	var sb SortBy
+	if sortBy == nil {
+		return query
+	}
+
+	// check if key is present
+	if sortBy.Column != 0 {
+		sb = SortBy(sortBy.Column)
+		// order by given column key
+		query += " ORDER BY " + sb.sortByString()
+	} else {
+		// sets advertised_start_time as default
+		sb = SortBy(5)
+		query += " ORDER BY " + sb.sortByString()
+	}
+
+	// check if order is Descending
+	if order.Order == 2 {
+		query += " DESC"
+	} else {
+		// sets order ascending as default
+		query += " ASC"
+	}
+
+	return query
 }
 
 func (m *racesRepo) scanRaces(

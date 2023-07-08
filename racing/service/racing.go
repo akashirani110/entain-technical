@@ -18,7 +18,7 @@ func NewRacingService(racesRepo db.RacesRepo) racing.RacingServer {
 }
 
 func (s *racingService) ListRaces(ctx context.Context, in *racing.ListRacesRequest) (*racing.ListRacesResponse, error) {
-	races, err := s.racesRepo.List(in.Filter)
+	races, err := s.racesRepo.List(in.Filter, in.SortBy, in.Order)
 	if err != nil {
 		return nil, err
 	}

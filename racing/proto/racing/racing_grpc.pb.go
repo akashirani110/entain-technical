@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.23.3
-// source: proto/racing/racing.proto
+// source: racing/racing.proto
 
 package racing
 
@@ -48,22 +48,20 @@ func (c *racingClient) ListRaces(ctx context.Context, in *ListRacesRequest, opts
 }
 
 // RacingServer is the server API for Racing service.
-// All implementations must embed UnimplementedRacingServer
+// All implementations should embed UnimplementedRacingServer
 // for forward compatibility
 type RacingServer interface {
 	// ListRaces will return a collection of all races.
 	ListRaces(context.Context, *ListRacesRequest) (*ListRacesResponse, error)
-	mustEmbedUnimplementedRacingServer()
 }
 
-// UnimplementedRacingServer must be embedded to have forward compatible implementations.
+// UnimplementedRacingServer should be embedded to have forward compatible implementations.
 type UnimplementedRacingServer struct {
 }
 
 func (UnimplementedRacingServer) ListRaces(context.Context, *ListRacesRequest) (*ListRacesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRaces not implemented")
 }
-func (UnimplementedRacingServer) mustEmbedUnimplementedRacingServer() {}
 
 // UnsafeRacingServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to RacingServer will
@@ -107,5 +105,5 @@ var Racing_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/racing/racing.proto",
+	Metadata: "racing/racing.proto",
 }
