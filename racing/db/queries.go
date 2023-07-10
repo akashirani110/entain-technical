@@ -13,7 +13,8 @@ func getRaceQueries() map[string]string {
 				name, 
 				number, 
 				visible, 
-				advertised_start_time 
+				advertised_start_time,
+				CASE WHEN (datetime('now', 'localtime') <= advertised_start_time) THEN 'OPEN' ELSE 'CLOSED' END AS status
 			FROM races
 		`,
 	}
