@@ -1,0 +1,58 @@
+syntax = "proto3";
+package sports;
+
+option go_package = "/sports";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+service Sports {
+  // ListEvents will return a collection of all Events.
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {
+    option (google.api.http) = { post: "/v1/list-sports-events", body: "*" };
+  }
+}
+
+// ListEvents request
+message ListEventsRequest {
+  ListEventsFilter filter = 1;
+}
+
+// ListEvents response
+message ListEventsResponse {
+  repeated SportsEvent events = 1;
+}
+
+// ListEvents request filter
+message ListEventsFilter {
+  repeated int64 event_ids = 1;
+}
+
+// enum for the event status
+enum EventStatus {
+  STATUS_UNSPECIFIED = 0;
+  COMPLETED = 1;
+  IN_PROGRESS = 2;
+  UPCOMING = 3;
+}
+
+/*  Resources */
+
+// Sport Event resource.
+message SportsEvent {
+  // ID represents a unique identifier for the event.
+  int64 id = 1;
+  // Name is the official event name.
+  string name = 2;
+  // AdvertisedStartTime is the time the event is advertised to take place.
+  google.protobuf.Timestamp advertised_start_time = 3;
+  // Location is the location of the event being held.
+  string location = 4;
+  // Description is the additional details about the event.
+  string description = 5;
+  // Status is the current status of the event.
+  optional EventStatus status = 6;
+  // Winner is the result of the event if concluded.
+  optional string winner = 7;
+}
+

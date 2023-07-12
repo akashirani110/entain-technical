@@ -12,6 +12,7 @@ import (
 // SportsRepo provides repository access to sports events.
 type SportsRepo interface {
 	Init() error
+	List(filter *sports.ListEventsFilter) ([]*sports.SportsEvent, error)
 }
 
 type sportsRepo struct {
@@ -34,6 +35,7 @@ func (s *sportsRepo) Init() error {
 	return err
 }
 
+// List queries the database and returns the records from scanEvents
 func (s *sportsRepo) List(filter *sports.ListEventsFilter) ([]*sports.SportsEvent, error) {
 	var (
 		err   error
@@ -51,6 +53,7 @@ func (s *sportsRepo) List(filter *sports.ListEventsFilter) ([]*sports.SportsEven
 	return s.scanEvents(rows)
 }
 
+// scanEvents scans the db rows and returns list of sports events
 func (s *sportsRepo) scanEvents(rows *sql.Rows) ([]*sports.SportsEvent, error) {
 	var events []*sports.SportsEvent
 
@@ -58,7 +61,7 @@ func (s *sportsRepo) scanEvents(rows *sql.Rows) ([]*sports.SportsEvent, error) {
 		var event sports.SportsEvent
 		var advertisedStart time.Time
 
-		if err := rows.Scan(&event.Id, &event.Name, &event.AdvertisedStartTime, &event.Location, &event.Description); err != nil {
+		if err := rows.Scan(&event.Id, &event.Name, &advertisedStart, &event.Location, &event.Description); err != nil {
 			if err == sql.ErrNoRows {
 				return nil, nil
 			}

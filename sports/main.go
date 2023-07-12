@@ -7,6 +7,8 @@ import (
 	"log"
 	"net"
 	"sports/db"
+	"sports/proto/sports"
+	"sports/service"
 )
 
 var (
@@ -27,17 +29,19 @@ func run() error {
 		return err
 	}
 
-	sportsEventsDB, err := sql.Open("sqlite3", "./db/sports.db")
+	sportsDB, err := sql.Open("sqlite3", "./db/sports.db")
 	if err != nil {
 		return err
 	}
 
-	sportsRepo := db.NewSportsRepo(sportsEventsDB)
+	sportsRepo := db.NewSportsRepo(sportsDB)
 	if err := sportsRepo.Init(); err != nil {
 		return err
 	}
 
 	grpcServer := grpc.NewServer()
+
+	sports.RegisterSportsServer(grpcServer, service.NewSportsService(sportsRepo))
 
 	log.Printf("gRPC server listening on: %s\n", *grpcEndpoint)
 
