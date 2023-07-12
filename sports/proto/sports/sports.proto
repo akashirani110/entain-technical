@@ -48,7 +48,7 @@ message SportsEvent {
   // Description is the additional details about the event.
   string description = 5;
   // Status is the current status of the event.
-  string status = 6;
+  optional EventStatus status = 6;
   // Winner is the result of the event if concluded.
   optional string winner = 7;
 }

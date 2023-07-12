@@ -1,10 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"sports/db"
 )
 
 var (
@@ -25,7 +27,19 @@ func run() error {
 		return err
 	}
 
+	sportsEventsDB, err := sql.Open("sqlite3", "./db/sports.db")
+	if err != nil {
+		return err
+	}
+
+	sportsRepo := db.NewSportsRepo(sportsEventsDB)
+	if err := sportsRepo.Init(); err != nil {
+		return err
+	}
+
 	grpcServer := grpc.NewServer()
+
+	log.Printf("gRPC server listening on: %s\n", *grpcEndpoint)
 
 	if err := grpcServer.Serve(conn); err != nil {
 		return err
