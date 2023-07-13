@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"git.neds.sh/matty/entain/api/proto/sports"
 	"log"
 	"net/http"
 
@@ -12,8 +13,9 @@ import (
 )
 
 var (
-	apiEndpoint  = flag.String("api-endpoint", "localhost:8000", "API endpoint")
-	grpcEndpoint = flag.String("grpc-endpoint", "localhost:9000", "gRPC server endpoint")
+	apiEndpoint        = flag.String("api-endpoint", "localhost:8000", "API endpoint")
+	grpcEndpointRacing = flag.String("grpc-endpoint-racing", "localhost:9000", "gRPC server endpoint")
+	grpcEndpointSports = flag.String("grpc-endpoint-sports", "localhost:9001", "gRPC server endpoint")
 )
 
 func main() {
@@ -30,10 +32,22 @@ func run() error {
 	defer cancel()
 
 	mux := runtime.NewServeMux()
+
+	// register the racing service api endpoint
 	if err := racing.RegisterRacingHandlerFromEndpoint(
 		ctx,
 		mux,
-		*grpcEndpoint,
+		*grpcEndpointRacing,
+		[]grpc.DialOption{grpc.WithInsecure()},
+	); err != nil {
+		return err
+	}
+
+	// register the new sports service api endpoint
+	if err := sports.RegisterSportsHandlerFromEndpoint(
+		ctx,
+		mux,
+		*grpcEndpointSports,
 		[]grpc.DialOption{grpc.WithInsecure()},
 	); err != nil {
 		return err
