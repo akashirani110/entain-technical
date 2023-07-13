@@ -117,18 +117,25 @@ go get github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway github.
 
 ### Changes/Updates made
 1) **Task 1**:
+   <br> `To run this task, fetch and pull origin task-1, and checkout task-1`
+
    <br> To add the visibility filter to fetch the races by its visibility, make a request to the racing service like such:
-      ```bash
-       curl -X "POST" "http://localhost:8000/v1/list-races" \
-       -H 'Content-Type: application/json' \
-       -d $'{
-       "filter": {"only_visible": true}
-       }'
-       ```
-  and it will list the visible only races. You can also make a request with filter meeting_ids to filter out further.
    
+   ```bash
+   curl -X "POST" "http://localhost:8000/v1/list-races" \
+   -H 'Content-Type: application/json' \
+   -d $'{
+   "filter": {"only_visible": true}
+   }'
+   ```
+   and it will list the visible only races. You can also make a request with filter meeting_ids to filter out further.
+   
+
 2) **Task 2**:
+   <br> `To run this task, fetch and pull origin task-2, and checkout task-2`
+
     <br> To return the races ordered by their advertised_start_time, make the following request to the racing service:
+   
       ```bash
       curl -X "POST" "http://localhost:8000/v1/list-races" \
        -H 'Content-Type: application/json' \
@@ -154,4 +161,58 @@ go get github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway github.
        "order": {}
        }'
       ```
+
 3) **Task 3**:
+   <br> `To run this task, fetch and pull origin task-3, and checkout task-3`
+
+   <br> The derived status column checks whether the advertised_start_time is in past then displays the status of a race as "CLOSED" and if its in the future then displays "OPEN" as the status.To achieve this, following changes were made to the racesList query:
+   
+   > CASE WHEN (datetime('now', 'localtime') <= advertised_start_time) THEN 'OPEN' ELSE 'CLOSED' END AS status
+
+4) **Task 4**:
+   <br> `To run this task, fetch origin task-4, pull origin task-4, and checkout task-4`
+
+   <br> The new GetRace rpc returns the race by its id. The following request will return race with id = 7
+   
+   ```bash
+   curl -X "GET" "http://localhost:8000/v1/races/7" \
+      -H 'Content-Type: application/json'
+   ```
+   
+   Replace the `id` in the request to fetch other race's details.
+
+   
+5) **Task5**:
+   <br> `To run this task, fetch and pull origin task-5, and checkout task-5` <br>
+
+   Task 5 implements new service Sports which serves on `localhost port 9001`. The service has a rpc ListEvents which lists all the sports events. The rpc request takes filter as input which isn't implemented here. The response lists all the sports events. The sport event looks like this:
+   
+   ```text
+      SportsEvent {
+      id,
+      name,
+      advertised_start_time,
+      location,
+      description,
+      status,
+      winner
+      }
+   ```
+   The status and winner fields are derived fields. The status is derived based on the advertised_start_time and winner is derived based on the status of the sport event. The status of an event can be:
+   
+   ```text
+   enum EventStatus {
+   STATUS_UNSPECIFIED = 0;
+   COMPLETED = 1;
+   IN_PROGRESS = 2;
+   UPCOMING = 3;
+   }
+   ```
+   If the status of the sports event is completed, then it will display the winner else the field will be nil. The database is seed with dummy data. To run the service, execute `go build` and `go run main.go` and you will see `gRPC server listening on: localhost:9001`. To list the events, the following request can be made:
+   
+   ```bash
+   curl -X "POST" "http://localhost:8000/v1/list-sports-events" \
+    -H 'Content-Type: application/json'
+   ```
+
+***
