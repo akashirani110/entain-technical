@@ -32,6 +32,8 @@ func run() error {
 	defer cancel()
 
 	mux := runtime.NewServeMux()
+
+	// register the racing service api endpoint
 	if err := racing.RegisterRacingHandlerFromEndpoint(
 		ctx,
 		mux,
@@ -41,6 +43,7 @@ func run() error {
 		return err
 	}
 
+	// register the new sports service api endpoint
 	if err := sports.RegisterSportsHandlerFromEndpoint(
 		ctx,
 		mux,
