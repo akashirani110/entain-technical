@@ -114,3 +114,44 @@ go get github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway github.
 - [Google API Design](https://cloud.google.com/apis/design)
 - [Go Modules](https://golang.org/ref/mod)
 - [Ubers Go Style Guide](https://github.com/uber-go/guide/blob/2910ce2e11d0e0cba2cece2c60ae45e3a984ffe5/style.md)
+
+### Changes/Updates made
+1) **Task 1**:
+   <br> To add the visibility filter to fetch the races by its visibility, make a request to the racing service like such:
+      ```bash
+       curl -X "POST" "http://localhost:8000/v1/list-races" \
+       -H 'Content-Type: application/json' \
+       -d $'{
+       "filter": {"only_visible": true}
+       }'
+       ```
+  and it will list the visible only races. You can also make a request with filter meeting_ids to filter out further.
+   
+2) **Task 2**:
+    <br> To return the races ordered by their advertised_start_time, make the following request to the racing service:
+      ```bash
+      curl -X "POST" "http://localhost:8000/v1/list-races" \
+       -H 'Content-Type: application/json' \
+       -d $'{
+       "filter": {},
+       "sort_by": {"column": 1},
+       "order": {"order": 2}
+       }'
+      ```
+    the above request will sort by column 1 which is id and in descending order. By default, it will sort by column advertised_start_time in ascending order. The valid values to sort by column are:
+    > id = 1, meeting_id = 2, name = 3, number = 4, and advertised_start_time = 5
+
+    any other values will lead to sort by default. For ordering, add
+    > Ascending (ASC) = 1 and Descending (DESC) = 2
+    
+    The default request would look like:
+    ```bash
+      curl -X "POST" "http://localhost:8000/v1/list-races" \
+       -H 'Content-Type: application/json' \
+       -d $'{
+       "filter": {},
+       "sort_by": {},
+       "order": {}
+       }'
+      ```
+3) **Task 3**:
